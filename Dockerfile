@@ -23,9 +23,18 @@ FROM --platform=linux/x86_64 openjdk:17-alpine as worker
 COPY --from=build /app/worker/build/libs/*.jar /worker.jar
 CMD ["java", "-Dspring-boot.run.profiles=default", "-jar", "/worker.jar"]
 
+# Multiple Image -> Multiple Container
 # create-image -> DOCKER_BUILDKIT=0 docker build --tag sb-web-image --build-arg JAR_FILE=web/build/libs/\*.jar --target generic .
 # run -> docker run -it --rm --name sb-web-container -p 8086:8080 sb-web-image
 FROM --platform=linux/x86_64 openjdk:17-alpine as generic
 ARG JAR_FILE
 COPY --from=build /app/${JAR_FILE} /app.jar
 CMD ["java", "-Dspring-boot.run.profiles=default", "-jar", "/app.jar"]
+
+# Single Image -> Multiple Container
+# create-image -> DOCKER_BUILDKIT=0 docker build --no-cache --tag sb-image --target generic .
+# run worker -> docker run -it --rm --name sb-worker-container -p 8086:8080 --entrypoint 'bin/sh' sb-image -c 'java -jar ./worker/build/libs/*.jar'
+# run web -> docker run -it --rm --name sb-web-container -p 8086:8080 --entrypoint 'bin/sh' sb-image -c 'java -jar ./web/build/libs/*.jar'
+FROM --platform=linux/x86_64 openjdk:17-alpine as generic
+COPY --from=build /app ./
+CMD echo 'Hello world'
