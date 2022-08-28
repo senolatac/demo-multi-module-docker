@@ -1,0 +1,8 @@
+// disable jar task. it doesn't contain manifest and fails heroku
+jar {
+    enabled = false
+}
+
+dependencies {
+    implementation('org.springframework.boot:spring-boot-starter-web')
+}

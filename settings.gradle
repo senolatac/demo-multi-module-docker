@@ -1,0 +1,4 @@
+rootProject.name = 'demo-multi-module-docker'
+include 'web'
+include 'worker'
+
